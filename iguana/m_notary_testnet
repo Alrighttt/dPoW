@@ -16,15 +16,8 @@ sleep 3
 
 # TODO: Need to get some seeds for both networks. 
 
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"195.201.20.230\"}"   # Alright
+curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"195.201.137.5\"}"   # Alright
 curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"159.69.72.206\"}"    # node-9
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"37.9.62.186\"}"
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"138.201.156.227\"}"  # rz1911
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"45.63.28.44\"}"      # gcharang
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"203.177.164.120\"}"      # dudezmobi.vrsc
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"149.28.213.223\"}"      # smk762
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"174.94.134.49\"}"      # strob
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"50.22.244.146\"}"    # metaphilibert
 
 
 # add KMD
@@ -34,9 +27,7 @@ curl --url "http://127.0.0.1:7778" --data "{\"conf\":\"komodo.conf\",\"path\":\"
 ./wp_testnet
 
 # add testnet coins to iguana
-coins/rick_testnet
-coins/morty_testnet
-
+coins/txscl1_testnet
 
 sleep 30
 
@@ -44,5 +35,4 @@ sleep 30
 source pubkey.txt
 echo $pubkey
 sleep 3
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"dpow\",\"symbol\":\"RICK\",\"pubkey\":\"$pubkey\"}"
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"dpow\",\"symbol\":\"MORTY\",\"pubkey\":\"$pubkey\"}"
+curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"dpow\",\"symbol\":\"TXSCL1\",\"pubkey\":\"$pubkey\"}"
