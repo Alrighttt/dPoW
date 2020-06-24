@@ -17,7 +17,7 @@ sleep 3
 # TODO: Need to get some seeds for both networks. 
 
 curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"195.201.137.5\"}"   # Alright
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"159.69.72.206\"}"    # node-9
+curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"addnotary\",\"ipaddr\":\"195.201.20.230\"}"    # node-9
 
 
 # add KMD
@@ -27,7 +27,7 @@ curl --url "http://127.0.0.1:7778" --data "{\"conf\":\"komodo.conf\",\"path\":\"
 ./wp_testnet
 
 # add testnet coins to iguana
-coins/txscl1_testnet
+coins/txscli_testnet
 
 sleep 30
 
@@ -35,4 +35,4 @@ sleep 30
 source pubkey.txt
 echo $pubkey
 sleep 3
-curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"dpow\",\"symbol\":\"TXSCL1\",\"pubkey\":\"$pubkey\"}"
+curl --url "http://127.0.0.1:7778" --data "{\"agent\":\"iguana\",\"method\":\"dpow\",\"symbol\":\"TXSCLI\",\"pubkey\":\"$pubkey\"}"
