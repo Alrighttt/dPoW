@@ -2,7 +2,8 @@
 git clone https://github.com/litecoin-project/litecoin
 cd litecoin
 git checkout 0.16
-./autogen
+./autogen.sh
+chmod +x configure.ac
 ./configure --without-gui --with-incompatible-bdb
 make -j4
 ```
