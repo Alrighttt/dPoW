@@ -353,8 +353,8 @@ THREE_STRINGS_AND_DOUBLE(iguana,dpow,symbol,dest,pubkey,freq)
         return(clonestr("{\"error\":\"cant dPoW an inactive coin\"}"));
     if ( strcmp(symbol,"KMD") == 0 && iguana_coinfind("LTC") == 0 )
         return(clonestr("{\"error\":\"cant dPoW KMD without LTC\"}"));
-    else if ( iguana_coinfind(dest) == 0 )
-        return(clonestr("{\"error\":\"cant dPoW without KMD (dest)\"}"));
+    //else if ( iguana_coinfind(dest) == 0 )
+    //    return(clonestr("{\"error\":\"cant dPoW without KMD (dest)\"}"));
     if ( myinfo->numdpows > 0 )
     {
         for (i=0; i<myinfo->numdpows; i++)
@@ -365,9 +365,9 @@ THREE_STRINGS_AND_DOUBLE(iguana,dpow,symbol,dest,pubkey,freq)
             }
     }
     strcpy(dp->symbol,symbol);
-    if ( strcmp(dp->symbol,"KMD") == 0 )
+    if ( strcmp(dp->symbol,"SRC") == 0 )
     {
-        strcpy(dp->dest,"LTC");
+        strcpy(dp->dest,"DEST");
         dp->srcconfirms = DPOW_KOMODOCONFIRMS;
     }
     else
