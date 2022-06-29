@@ -1,0 +1,27 @@
+diff --git a/iguana/iguana_notary.c b/iguana/iguana_notary.c
+index 787076a..392f535 100755
+--- a/iguana/iguana_notary.c
++++ b/iguana/iguana_notary.c
+@@ -353,8 +353,8 @@ THREE_STRINGS_AND_DOUBLE(iguana,dpow,symbol,dest,pubkey,freq)
+         return(clonestr("{\"error\":\"cant dPoW an inactive coin\"}"));
+     if ( strcmp(symbol,"DEST") == 0 && iguana_coinfind("LTC") == 0 )
+         return(clonestr("{\"error\":\"cant dPoW DEST without LTC\"}"));
+-    else if ( iguana_coinfind(dest) == 0 )
+-        return(clonestr("{\"error\":\"cant dPoW without DEST (dest)\"}"));
++    //else if ( iguana_coinfind(dest) == 0 )
++    //    return(clonestr("{\"error\":\"cant dPoW without DEST (dest)\"}"));
+     if ( myinfo->numdpows > 0 )
+     {
+         for (i=0; i<myinfo->numdpows; i++)
+@@ -365,9 +365,9 @@ THREE_STRINGS_AND_DOUBLE(iguana,dpow,symbol,dest,pubkey,freq)
+             }
+     }
+     strcpy(dp->symbol,symbol);
+-    if ( strcmp(dp->symbol,"DEST") == 0 )
++    if ( strcmp(dp->symbol,"SRC") == 0 )
+     {
+-        strcpy(dp->dest,"LTC");
++        strcpy(dp->dest,"DEST");
+         dp->srcconfirms = DPOW_KOMODOCONFIRMS;
+     }
+     else

@@ -129,7 +129,7 @@ int32_t dpow_checkutxo(struct supernet_info *myinfo,struct dpow_info *dp,struct 
         minutxo = 199;
         n = 10;
     }
-    else if ( strcmp("KMD",coin->symbol) == 0 )
+    else if ( strcmp("DEST",coin->symbol) == 0 )
     {
         minutxo = 512;
         n = 256;
@@ -297,9 +297,9 @@ void dpow_statemachinestart(void *ptr)
     }
     MoMdepth = 0;
     memset(&MoM,0,sizeof(MoM));
-    if ( strcmp(src->symbol,"KMD") == 0 )
+    if ( strcmp(src->symbol,"DEST") == 0 )
         kmdheight = checkpoint.blockhash.height;
-    else if ( strcmp(dest->symbol,"KMD") == 0 )
+    else if ( strcmp(dest->symbol,"DEST") == 0 )
     {
         MoM = dpow_calcMoM(&MoMdepth,myinfo,src,checkpoint.blockhash.height);
         kmdheight = dest->longestchain;
@@ -452,15 +452,15 @@ void dpow_statemachinestart(void *ptr)
 	bitcoin_address(destaddr,dest->chain->pubtype,dp->minerkey33,33);
     if ( kmdheight >= 0 )
     {
-        ht = kmdheight;///strcmp("KMD",src->symbol) == 0 ? kmdheight : bp->height;
-        if ( strcmp("KMD",dest->symbol) == 0 )
+        ht = kmdheight;///strcmp("DEST",src->symbol) == 0 ? kmdheight : bp->height;
+        if ( strcmp("DEST",dest->symbol) == 0 )
         {
             bp->numnotaries = komodo_notaries(dest->symbol,pubkeys,ht);
         }
         else
         {
             if ( ht == 0 )
-                ht = strcmp("KMD",src->symbol) == 0 ? src->longestchain : dest->longestchain;
+                ht = strcmp("DEST",src->symbol) == 0 ? src->longestchain : dest->longestchain;
             bp->numnotaries = komodo_notaries(src->symbol,pubkeys,ht);
         }
         for (i=0; i<bp->numnotaries; i++)
@@ -469,7 +469,7 @@ void dpow_statemachinestart(void *ptr)
             //    printf("%02x",pubkeys[i][j]);
             //printf(" <= pubkey[%d]\n",i);
             memcpy(bp->notaries[i].pubkey,pubkeys[i],33);
-            if ( strcmp("KMD",src->symbol) == 0 )
+            if ( strcmp("DEST",src->symbol) == 0 )
                 memcpy(myinfo->notaries[i],pubkeys[i],33);
             if ( memcmp(bp->notaries[i].pubkey,dp->minerkey33,33) == 0 )
             {
@@ -480,7 +480,7 @@ void dpow_statemachinestart(void *ptr)
                 //printf(" MYIND.%d <<<<<<<<<<<<<<<<<<<<<<\n",myind);
             }
         }
-        if ( strcmp("KMD",src->symbol) == 0 )
+        if ( strcmp("DEST",src->symbol) == 0 )
             myinfo->numnotaries = bp->numnotaries;
         if ( myind < 0 || ep == 0 )
         {
@@ -547,9 +547,9 @@ void dpow_statemachinestart(void *ptr)
     {
         if ( dpow_haveutxo(myinfo,bp->destcoin,&ep->dest.prev_hash,&ep->dest.prev_vout,destaddr,src->symbol) > 0 )
         {
-            if ( (strcmp("KMD",dest->symbol) == 0 ) && (ep->dest.prev_vout != -1) )
+            if ( (strcmp("DEST",dest->symbol) == 0 ) && (ep->dest.prev_vout != -1) )
             {
-                // lock the dest utxo if destination coin is KMD.
+                // lock the dest utxo if destination coin is DEST.
                 if (dpow_lockunspent(myinfo,bp->destcoin,destaddr,bits256_str(str2,ep->dest.prev_hash),ep->dest.prev_vout) != 0)
                     printf(">>>> LOCKED %s UTXO.(%s) vout.(%d)\n",dest->symbol,bits256_str(str2,ep->dest.prev_hash),ep->dest.prev_vout);
                 else
@@ -558,9 +558,9 @@ void dpow_statemachinestart(void *ptr)
         }
         if ( dpow_haveutxo(myinfo,bp->srccoin,&ep->src.prev_hash,&ep->src.prev_vout,srcaddr,"") > 0 )
         {
-            if ( ( strcmp("KMD",src->symbol) == 0 ) && (ep->src.prev_vout != -1) )
+            if ( ( strcmp("DEST",src->symbol) == 0 ) && (ep->src.prev_vout != -1) )
             {
-                // lock the src coin selected utxo if the source coin is KMD.
+                // lock the src coin selected utxo if the source coin is DEST.
                 if (dpow_lockunspent(myinfo,bp->srccoin,srcaddr,bits256_str(str2,ep->src.prev_hash),ep->src.prev_vout) != 0)
                     printf(">>>> LOCKED %s UTXO.(%s) vout.(%d)\n",src->symbol,bits256_str(str2,ep->src.prev_hash),ep->src.prev_vout);
                 else
@@ -609,7 +609,7 @@ void dpow_statemachinestart(void *ptr)
     if ( bp->isratify == 0 )
     {
         bp->starttime = starttime;
-        if ( strcmp(bp->destcoin->symbol,"KMD") == 0 )
+        if ( strcmp(bp->destcoin->symbol,"DEST") == 0 )
             src_or_dest = 0;
         else src_or_dest = 1;
         extralen = dpow_paxpending(myinfo,extras,sizeof(extras),&bp->paxwdcrc,bp->MoM,bp->MoMdepth,bp->CCid,src_or_dest,bp);
@@ -630,7 +630,7 @@ void dpow_statemachinestart(void *ptr)
                 printf("break due to already ratifying\n");
                 break;
             }
-            if ( strcmp(bp->destcoin->symbol,"KMD") == 0 )
+            if ( strcmp(bp->destcoin->symbol,"DEST") == 0 )
                 src_or_dest = 0;
             else src_or_dest = 1;
             extralen = dpow_paxpending(myinfo,extras,sizeof(extras),&bp->paxwdcrc,bp->MoM,bp->MoMdepth,bp->CCid,src_or_dest,bp);
@@ -775,14 +775,14 @@ void dpow_statemachinestart(void *ptr)
     }
 #endif
 end:
-    // unlock the dest utxo on KMD.
-    if ( ep != 0 && strcmp("KMD",dest->symbol) == 0  && ep->dest.prev_vout != -1 )
+    // unlock the dest utxo on DEST.
+    if ( ep != 0 && strcmp("DEST",dest->symbol) == 0  && ep->dest.prev_vout != -1 )
     {
       if ( dpow_unlockunspent(myinfo,bp->destcoin,destaddr,bits256_str(str2,ep->dest.prev_hash),ep->dest.prev_vout) != 0 )
         printf(">>>> UNLOCKED %s UTXO.(%s) vout.(%d)\n",dest->symbol,bits256_str(str2,ep->dest.prev_hash),ep->dest.prev_vout);
     }
-    // unlock the src selected utxo on KMD.
-    if ( ep != 0 && strcmp("KMD",src->symbol) == 0  && ep->src.prev_vout != -1 )
+    // unlock the src selected utxo on DEST.
+    if ( ep != 0 && strcmp("DEST",src->symbol) == 0  && ep->src.prev_vout != -1 )
     {
       if ( dpow_unlockunspent(myinfo,bp->srccoin,srcaddr,bits256_str(str2,ep->src.prev_hash),ep->src.prev_vout) != 0)
         printf(">>>> UNLOCKED %s UTXO.(%s) vout.(%d)\n",src->symbol,bits256_str(str2,ep->src.prev_hash),ep->src.prev_vout);

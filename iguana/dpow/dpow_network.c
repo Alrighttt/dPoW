@@ -760,7 +760,7 @@ return(clonestr("{\"error\":\"basilisk disabled\"}"));
             else if ( dexreq.func == 'N' )
             {
                 uint8_t pubkeys[64][33]; char str[128]; int32_t numnotaries; cJSON *array,*item;
-                if ( (numnotaries= komodo_notaries("KMD",pubkeys,-1)) > 0 && numnotaries <= 64 )
+                if ( (numnotaries= komodo_notaries("DEST",pubkeys,-1)) > 0 && numnotaries <= 64 )
                 {
                     retjson = cJSON_CreateObject();
                     array = cJSON_CreateArray();
@@ -773,7 +773,7 @@ return(clonestr("{\"error\":\"basilisk disabled\"}"));
                         bitcoin_address(str,0,pubkeys[i],33);
                         jaddstr(item,"BTCaddress",str);
                         bitcoin_address(str,60,pubkeys[i],33);
-                        jaddstr(item,"KMDaddress",str);
+                        jaddstr(item,"DESTaddress",str);
                         jaddi(array,item);
                     }
                     jadd(retjson,"notaries",array);
@@ -1118,7 +1118,7 @@ char *_dex_getmessage(struct supernet_info *myinfo,char *jsonstr)
 {
     struct dex_request dexreq;
     memset(&dexreq,0,sizeof(dexreq));
-    safecopy(dexreq.name,"KMD",sizeof(dexreq.name));
+    safecopy(dexreq.name,"DEST",sizeof(dexreq.name));
     dexreq.func = 'M';
     return(_dex_sendrequeststr(myinfo,&dexreq,jsonstr,0,1,""));
 }
@@ -1127,7 +1127,7 @@ char *_dex_sendmessage(struct supernet_info *myinfo,char *jsonstr)
 {
     struct dex_request dexreq;
     memset(&dexreq,0,sizeof(dexreq));
-    safecopy(dexreq.name,"KMD",sizeof(dexreq.name));
+    safecopy(dexreq.name,"DEST",sizeof(dexreq.name));
     dexreq.func = 'a';
     return(_dex_sendrequeststr(myinfo,&dexreq,jsonstr,0,1,""));
 }
@@ -1138,7 +1138,7 @@ char *_dex_psock(struct supernet_info *myinfo,char *jsonstr)
     if ( jsonstr == 0 )
         jsonstr = "{}";
     memset(&dexreq,0,sizeof(dexreq));
-    safecopy(dexreq.name,"KMD",sizeof(dexreq.name));
+    safecopy(dexreq.name,"DEST",sizeof(dexreq.name));
     dexreq.func = 'Z';
     return(_dex_sendrequeststr(myinfo,&dexreq,jsonstr,0,1,""));
 }
@@ -2194,7 +2194,7 @@ void dpow_send(struct supernet_info *myinfo,struct dpow_info *dp,struct dpow_blo
     //printf(" dpow_send.(%d) size.%d numipbits.%d myind.%d\n",datalen,size,np->numipbits,bp->myind);
     if ( bp->isratify == 0 )
     {
-        if ( strcmp(bp->destcoin->symbol,"KMD") == 0 )
+        if ( strcmp(bp->destcoin->symbol,"DEST") == 0 )
             src_or_dest = 0;
         else src_or_dest = 1;
         extralen = dpow_paxpending(myinfo,extras,sizeof(extras),&paxwdcrc,bp->MoM,bp->MoMdepth,bp->CCid,src_or_dest,bp);
@@ -2297,7 +2297,7 @@ int32_t dpow_nanomsg_update(struct supernet_info *myinfo)
         return(-1);
     if ( myinfo->IAMNOTARY != 0 && myinfo->numnotaries <= 0 )
     {
-        myinfo->numnotaries = komodo_notaries("KMD",myinfo->notaries,-1);
+        myinfo->numnotaries = komodo_notaries("DEST",myinfo->notaries,-1);
         printf("INIT with %d notaries\n",myinfo->numnotaries);
     }
     //int err_lock = portable_mutex_lock(&myinfo->dpowmutex);

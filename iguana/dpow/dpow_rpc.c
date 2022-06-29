@@ -186,7 +186,7 @@ int32_t komodo_notaries(char *symbol,uint8_t pubkeys[64][33],int32_t height)
         portable_mutex_init(&notaries_mutex);
         initflag = 1;
     }
-    if ( (coin= iguana_coinfind("KMD")) != 0 )
+    if ( (coin= iguana_coinfind("DEST")) != 0 )
     {
         if ( coin->FULLNODE < 0 )
         {
@@ -286,7 +286,7 @@ cJSON *dpow_MoMoMdata(struct iguana_info *coin,char *symbol,int32_t kmdheight,ui
 {
     char buf[128],*retstr=0; cJSON *retjson = 0; struct iguana_info *src;
     if ( coin->active == 0 ) return (retjson);
-    if ( coin->FULLNODE < 0 && strcmp(coin->symbol,"KMD") == 0 && (src= iguana_coinfind(symbol)) != 0 )
+    if ( coin->FULLNODE < 0 && strcmp(coin->symbol,"DEST") == 0 && (src= iguana_coinfind(symbol)) != 0 )
     {
         sprintf(buf,"[\"%s\", \"%d\", \"%d\"]",symbol,kmdheight,CCid);
         if ( (retstr= bitcoind_passthru(coin->symbol,coin->chain->serverport,coin->chain->userpass,"MoMoMdata",buf)) != 0 )
@@ -325,7 +325,7 @@ int32_t dpow_paxpending(struct supernet_info *myinfo,uint8_t *hex,int32_t hexsiz
         int8_t ccid_ex = 0;
 #endif
 */
-        if ( CCid != 0 && src_or_dest == 0 && strcmp(bp->destcoin->symbol,"KMD") == 0 ) //strncmp(bp->srccoin->symbol,"TXSCL",5) == 0 &&
+        if ( CCid != 0 && src_or_dest == 0 && strcmp(bp->destcoin->symbol,"DEST") == 0 ) //strncmp(bp->srccoin->symbol,"TXSCL",5) == 0 &&
         {
             kmdcoin = bp->destcoin;
             if ( (infojson= dpow_getinfo(myinfo,kmdcoin)) != 0 )
@@ -333,7 +333,7 @@ int32_t dpow_paxpending(struct supernet_info *myinfo,uint8_t *hex,int32_t hexsiz
                 kmdheight = jint(infojson,"blocks");
                 free_json(infojson);
             }
-            // 5 block delay is easily enough most of the time. In rare case KMD is reorged more than this, 
+            // 5 block delay is easily enough most of the time. In rare case DEST is reorged more than this, 
             // the backup notary validation can be used to complete the import.            
             if ( (retjson= dpow_MoMoMdata(kmdcoin,bp->srccoin->symbol,kmdheight,bp->CCid)) != 0 )
             {
@@ -359,7 +359,7 @@ int32_t dpow_paxpending(struct supernet_info *myinfo,uint8_t *hex,int32_t hexsiz
     }
     *paxwdcrcp = paxwdcrc;
     return(n);
-    if ( (coin= iguana_coinfind("KMD")) != 0 )
+    if ( (coin= iguana_coinfind("DEST")) != 0 )
     {
         if ( coin->FULLNODE < 0 )
         {
@@ -379,8 +379,8 @@ int32_t dpow_paxpending(struct supernet_info *myinfo,uint8_t *hex,int32_t hexsiz
                 } else printf("dpow_paxpending: parse error.(%s)\n",retstr);
                 free(retstr);
             } else printf("dpow_paxpending: paxwithdraw null return\n");
-        } else printf("dpow_paxpending: KMD FULLNODE.%d\n",coin->FULLNODE);
-    } else printf("dpow_paxpending: cant find KMD\n");
+        } else printf("dpow_paxpending: DEST FULLNODE.%d\n",coin->FULLNODE);
+    } else printf("dpow_paxpending: cant find DEST\n");
     if ( *paxwdcrcp != paxwdcrc )
         *paxwdcrcp = paxwdcrc;
     return(n);
@@ -1097,7 +1097,7 @@ char *dpow_issuemethod(char *userpass,char *method,char *params,uint16_t port)
     {
         snprintf(url, sizeof(url), (char *)"http://127.0.0.1:%u", port);
         sprintf(postdata,"{\"method\":\"%s\",\"params\":%s}",method,params);
-        //printf("postdata.(%s) USERPASS.(%s)\n",postdata,KMDUSERPASS);
+        //printf("postdata.(%s) USERPASS.(%s)\n",postdata,DESTUSERPASS);
         retstr2 = bitcoind_RPC(&retstr,(char *)"debug",url,userpass,method,params,0);
     }
     return(retstr2);
@@ -1106,7 +1106,7 @@ char *dpow_issuemethod(char *userpass,char *method,char *params,uint16_t port)
 uint64_t dpow_paxprice(uint64_t *seedp,int32_t height,char *base,char *rel,uint64_t basevolume)
 {
     char params[512],*retstr; uint64_t satoshis = 0; cJSON *retjson,*result; struct iguana_info *kmdcoin;
-    kmdcoin = iguana_coinfind("KMD");
+    kmdcoin = iguana_coinfind("DEST");
     *seedp = 0;
     sprintf(params,"[\"%s\", \"%s\", \"%d\", \"%.8f\"]",base,rel,height,(double)basevolume/SATOSHIDEN);
     if ( kmdcoin != 0 && (retstr= dpow_issuemethod(kmdcoin->chain->userpass,"paxprice",params,kmdcoin->chain->rpcport)) != 0 )
@@ -1158,11 +1158,11 @@ uint64_t PAX_fiatdest(uint64_t *seedp,int32_t tokomodo,char *destaddr,uint8_t pu
     for (i=0; i<3; i++)
         base[i] = toupper((int32_t)origbase[i]);
     base[i] = 0;
-    if ( strcmp(base,"KMD") == 0 )
+    if ( strcmp(base,"DEST") == 0 )
         return(0);
     if ( fiatoshis < 0 )
         shortflag = 1, fiatoshis = -fiatoshis;
-    komodoshis = dpow_paxprice(seedp,kmdheight,base,(char *)"KMD",(uint64_t)fiatoshis);
+    komodoshis = dpow_paxprice(seedp,kmdheight,base,(char *)"DEST",(uint64_t)fiatoshis);
     if ( bitcoin_addr2rmd160(&addrtype,rmd160,coinaddr) == 20 )
     {
         PAX_pubkey(1,pubkey33,&addrtype,rmd160,base,&shortflag,tokomodo != 0 ? &komodoshis : &fiatoshis);
@@ -1201,7 +1201,7 @@ cJSON *dpow_paxjson(struct pax_transaction *pax)
         jaddstr(item,"fiat",pax->symbol);
         jaddnum(item,"kmdheight",pax->kmdheight);
         jaddnum(item,"height",pax->height);
-        jaddnum(item,"KMD",dstr(pax->komodoshis));
+        jaddnum(item,"DEST",dstr(pax->komodoshis));
         jaddstr(item,"address",pax->coinaddr);
         bitcoin_addr2rmd160(&addrtype,rmd160,pax->coinaddr);
         for (i=0; i<20; i++)
@@ -1338,11 +1338,11 @@ void dpow_issuer_voutupdate(struct dpow_info *dp,char *symbol,int32_t isspecial,
     {
         memset(base,0,sizeof(base));
         offset += dpow_scriptitemlen(&opretlen,&script[offset]);
-        if ( script[offset] == 'W' && strcmp(dp->symbol,"KMD") != 0 )
+        if ( script[offset] == 'W' && strcmp(dp->symbol,"DEST") != 0 )
         {
             // if valid add to pricefeed for issue
             printf("notary vout.%s ht.%d txi.%d vout.%d %.8f opretlen.%d\n",symbol,height,txi,vout,dstr(fiatoshis),opretlen);
-            if ( opretlen == 38 ) // any KMD tx
+            if ( opretlen == 38 ) // any DEST tx
             {
                 offset++;
                 offset += PAX_pubkey(0,&script[offset],&addrtype,rmd160,base,&shortflag,&komodoshis);
@@ -1378,10 +1378,10 @@ void dpow_issuer_voutupdate(struct dpow_info *dp,char *symbol,int32_t isspecial,
                 }
             }
         }
-        else if ( script[offset] == 'X' && strcmp(dp->symbol,"KMD") == 0 )
+        else if ( script[offset] == 'X' && strcmp(dp->symbol,"DEST") == 0 )
         {
             printf("WITHDRAW issued ht.%d txi.%d vout.%d %.8f\n",height,txi,vout,dstr(fiatoshis));
-            if ( opretlen == 46 ) // any KMD tx
+            if ( opretlen == 46 ) // any DEST tx
             {
                 offset++;
                 offset += PAX_pubkey(0,&script[offset],&addrtype,rmd160,base,&shortflag,&fiatoshis);

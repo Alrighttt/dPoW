@@ -255,7 +255,7 @@ int32_t dpow_voutstandard(struct supernet_info *myinfo,struct dpow_block *bp,uin
         }
         printf("numvouts.%d len.%d RATIFY vouts\n",numvouts,len);
     }
-    if ( bp->MoMdepth > 0 && strcmp(bp->destcoin->symbol,"KMD") == 0 ) // || strcmp(bp->srccoin->symbol,"KMD") == 0) )
+    if ( bp->MoMdepth > 0 && strcmp(bp->destcoin->symbol,"DEST") == 0 ) // || strcmp(bp->srccoin->symbol,"DEST") == 0) )
     {
         n = dpow_paxpending(myinfo,extras,sizeof(extras),&paxwdcrc,bp->MoM,bp->MoMdepth,bp->CCid,src_or_dest,bp);
     }

@@ -102,7 +102,7 @@ struct PAX_data
     char edate[128]; double ecbmatrix[MAX_CURRENCIES][MAX_CURRENCIES],dailyprices[MAX_CURRENCIES * MAX_CURRENCIES],metals[4];
     uint32_t lastupdate;
     int32_t ecbdatenum,ecbyear,ecbmonth,ecbday; double RTmatrix[MAX_CURRENCIES][MAX_CURRENCIES],RTprices[128],RTmetals[4];
-    double basevals[MAX_CURRENCIES],cryptovols[2][9][2],BTCDBTC,BTCUSD,KMDBTC,CNYUSD,btcusd,kmdbtc,cryptos[8];
+    double basevals[MAX_CURRENCIES],cryptovols[2][9][2],BTCDBTC,BTCUSD,DESTBTC,CNYUSD,btcusd,kmdbtc,cryptos[8];
     struct PAX_spline splines[128];
 };
 
@@ -214,9 +214,9 @@ short Currency_contractdirs[NUM_CURRENCIES+1][NUM_CURRENCIES] =
 
 char *PAX_bases[64] =
 {
-    "KMD", "USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "NZD", // major currencies
+    "DEST", "USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "NZD", // major currencies
     "CNY", "RUB", "MXN", "BRL", "INR", "HKD", "TRY", "ZAR", "PLN", "NOK", "SEK", "DKK", "CZK", "HUF", "ILS", "KRW", "MYR", "PHP", "RON", "SGD", "THB", "BGN", "IDR", "HRK",
-    "BTCUSD", "NXTBTC", "SuperNET", "ETHBTC", "ETCBTC", "XMRBTC", "KMDBTC", "XCPBTC",  // BTC priced
+    "BTCUSD", "NXTBTC", "SuperNET", "ETHBTC", "ETCBTC", "XMRBTC", "DESTBTC", "XCPBTC",  // BTC priced
     "XAUUSD", "XAGUSD", "XPTUSD", "XPDUSD", "COPPER", "NGAS", "UKOIL", "USOIL", // USD priced
     "BUND", "NAS100", "SPX500", "US30", "EUSTX50", "UK100", "JPN225", "GER30", "SUI30", "AUS200", "HKG33", "XAUUSD", "BTCRUB", "BTCCNY", "BTCUSD" // abstract
 };
@@ -273,7 +273,7 @@ static char *Yahoo_metals[] = { YAHOO_METALS };
 char CURRENCIES[][65] = { "USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "NZD", // major currencies
     "CNY", "RUB", "MXN", "BRL", "INR", "HKD", "TRY", "ZAR", "PLN", "NOK", "SEK", "DKK", "CZK", "HUF", "ILS", "KRW", "MYR", "PHP", "RON", "SGD", "THB", "BGN", "IDR", "HRK", // end of currencies
     "XAU", "XAG", "XPT", "XPD", // metals, gold must be first
-    "BTCD", "BTC", "NXT", "ETC", "ETH", "KMD", "BTS", "MAID", "XCP",  "XMR" // cryptos
+    "BTCD", "BTC", "NXT", "ETC", "ETH", "DEST", "BTS", "MAID", "XCP",  "XMR" // cryptos
 };
 
 char CONTRACTS[][16] = {  "NZDUSD", "NZDCHF", "NZDCAD", "NZDJPY", "GBPNZD", "EURNZD", "AUDNZD", "CADJPY", "CADCHF", "USDCAD", "EURCAD", "GBPCAD", "AUDCAD", "USDCHF", "CHFJPY", "EURCHF", "GBPCHF", "AUDCHF", "EURUSD", "EURAUD", "EURJPY", "EURGBP", "GBPUSD", "GBPJPY", "GBPAUD", "USDJPY", "AUDJPY", "AUDUSD", "USDCNY", "USDHKD", "USDMXN", "USDZAR", "USDTRY", "EURTRY", "TRYJPY", "USDSGD", "EURNOK", "USDNOK","USDSEK","USDDKK","EURSEK","EURDKK","NOKJPY","SEKJPY","USDPLN","EURPLN","USDILS", // no more currencies
@@ -506,7 +506,7 @@ uint32_t peggy_mils(int32_t i)
             minmils = 10000;
         else if ( strncmp(PAX_bases[i],"NXT",3) == 0 || strncmp(PAX_bases[i],"BTS",3) == 0 )
             minmils = 1000000;
-        else if ( strncmp(PAX_bases[i],"KMD",5) == 0 )
+        else if ( strncmp(PAX_bases[i],"DEST",5) == 0 )
             minmils = 1000;
         else minmils = 10000;
     }
@@ -950,9 +950,9 @@ int32_t PAX_getmatrix(double *basevals,struct PAX_data *dp,double Hmatrix[32][32
     if ( btcusd > SMALLVAL )
         dxblend(&dp->BTCUSD,btcusd,.9);
     if ( kmdbtc > SMALLVAL )
-        dxblend(&dp->KMDBTC,kmdbtc,.9);
+        dxblend(&dp->DESTBTC,kmdbtc,.9);
     // char *cryptostrs[8] = { "btc", "nxt", "unity", "eth", "ltc", "xmr", "bts", "xcp" };
-    // "BTCUSD", "NXTBTC", "SuperNET", "ETHBTC", "ETCBTC", "XMRBTC", "KMDBTC", "XCPBTC",  // BTC priced
+    // "BTCUSD", "NXTBTC", "SuperNET", "ETHBTC", "ETCBTC", "XMRBTC", "DESTBTC", "XCPBTC",  // BTC priced
     for (i=0; i<num; i++)
     {
         if ( contracts[i] == 0 )
@@ -984,7 +984,7 @@ int32_t PAX_getmatrix(double *basevals,struct PAX_data *dp,double Hmatrix[32][32
             RTprices[i] = dp->cryptos[4];
         else if ( strcmp(contracts[i],"XMRBTC") == 0 )
             RTprices[i] = dp->cryptos[5];
-        else if ( strcmp(contracts[i],"KMDBTC") == 0 )
+        else if ( strcmp(contracts[i],"DESTBTC") == 0 )
             RTprices[i] = dp->cryptos[6];
         else if ( strcmp(contracts[i],"XCPBTC") == 0 )
             RTprices[i] = dp->cryptos[7];
@@ -1013,7 +1013,7 @@ int32_t PAX_getmatrix(double *basevals,struct PAX_data *dp,double Hmatrix[32][32
             }
         }
         if ( Debuglevel > 2 )
-            printf("(%f %f) i.%d num.%d %s %f\n",dp->BTCUSD,dp->KMDBTC,i,num,contracts[i],RTprices[i]);
+            printf("(%f %f) i.%d num.%d %s %f\n",dp->BTCUSD,dp->DESTBTC,i,num,contracts[i],RTprices[i]);
         //printf("RT.(%s %f) ",contracts[i],RTprices[i]);
     }
     return(dp->ecbdatenum);
@@ -1025,7 +1025,7 @@ int32_t PAX_emitprices(uint32_t pvals[32],struct PAX_data *dp)
     memset(cprices,0,sizeof(cprices));
     if ( PAX_getmatrix(basevals,dp,matrix,cprices+1,PAX_bases+1,sizeof(PAX_bases)/sizeof(*PAX_bases)-1) > 0 )
     {
-        cprices[0] = dp->KMDBTC;
+        cprices[0] = dp->DESTBTC;
         /*for (i=0; i<32; i++)
             dp->RTmatrix[i][i] = basevals[i];
         for (i=0; i<32; i++)
@@ -1037,7 +1037,7 @@ int32_t PAX_emitprices(uint32_t pvals[32],struct PAX_data *dp)
         memset(prices,0,sizeof(prices));
         memset(matrix,0,sizeof(matrix));
         memset(RTmatrix,0,sizeof(RTmatrix));
-        //peggy_prices(prices,dp->BTCUSD,dp->KMDBTC,PAX_bases,sizeof(PAX_bases)/sizeof(*PAX_bases),cprices,basevals);
+        //peggy_prices(prices,dp->BTCUSD,dp->DESTBTC,PAX_bases,sizeof(PAX_bases)/sizeof(*PAX_bases),cprices,basevals);
         for (i=0; i<sizeof(PAX_bases)/sizeof(*PAX_bases); i++)
         {
             pvals[i] = 0;
@@ -1188,7 +1188,7 @@ void PAX_btcprices(struct PAX_data *dp,int32_t enddatenum,int32_t numdates)
     cJSON *coindesk,*quandl,*kmdhist,*bpi,*array,*item;
     double kmddaily[MAX_SPLINES],cdaily[MAX_SPLINES],qdaily[MAX_SPLINES],ask,high,low,bid,close,vol,quotevol,open,price = 0.;
     coindesk = url_json("http://api.coindesk.com/v1/bpi/historical/close.json");
-    sprintf(url,"https://poloniex.com/public?command=returnChartData&currencyPair=BTC_KMD&start=%ld&end=9999999999&period=86400",(long)(time(NULL)-numdates*3600*24));
+    sprintf(url,"https://poloniex.com/public?command=returnChartData&currencyPair=BTC_DEST&start=%ld&end=9999999999&period=86400",(long)(time(NULL)-numdates*3600*24));
     sprintf(url2,"https://poloniex.com/public?command=returnChartData&currencyPair=BTC_BTCD&start=%ld&end=9999999999&period=86400",(long)(time(NULL)-numdates*3600*24));
     if ( (bpi= jobj(coindesk,"bpi")) != 0 )
     {
@@ -1263,7 +1263,7 @@ void PAX_btcprices(struct PAX_data *dp,int32_t enddatenum,int32_t numdates)
             printf("poloniex.%d\n",n);
         PAX_genspline(&dp->splines[MAX_CURRENCIES+2],MAX_CURRENCIES+2,"kmdhist",utc32,kmddaily,n<MAX_SPLINES?n:MAX_SPLINES,kmddaily);
     }
-    // https://poloniex.com/public?command=returnChartData&currencyPair=BTC_KMD&start=1405699200&end=9999999999&period=86400
+    // https://poloniex.com/public?command=returnChartData&currencyPair=BTC_DEST&start=1405699200&end=9999999999&period=86400
 }
 
 int32_t PAX_ecbparse(char *date,double *prices,char *url,int32_t basenum)
@@ -1434,13 +1434,13 @@ void PAX_update(struct PAX_data *dp,double *btcusdp,double *kmdbtcp)
     sprintf(url,"https://poloniex.com/public?command=returnTradeHistory&currencyPair=USDT_BTC&start=%u&end=%u",(uint32_t)time(NULL)-60,(uint32_t)time(NULL));
     btctrades = url_json(url);
     //kmdtrades = url_json("https://poloniex.com/public?command=returnTradeHistory&currencyPair=USDT_BTC");
-    //kmdtrades2 = url_json("https://bittrex.com/api/v1.1/public/getmarkethistory?market=BTC-KMD&count=50");
+    //kmdtrades2 = url_json("https://bittrex.com/api/v1.1/public/getmarkethistory?market=BTC-DEST&count=50");
     *kmdbtcp = 0;
     bitcoinave = 0;//url_json("https://api.bitcoinaverage.com/ticker/USD/");
     //bitcoincharts = url_json("http://api.bitcoincharts.com/v1/weighted_prices.json");
     blockchaininfo = url_json("https://blockchain.info/ticker");
     coindesk = 0;//url_json("http://api.coindesk.com/v1/bpi/historical/close.json");
-    sprintf(url,"https://poloniex.com/public?command=returnChartData&currencyPair=BTC_KMD&start=%ld&end=9999999999&period=86400",(long)(time(NULL)-3600*24));
+    sprintf(url,"https://poloniex.com/public?command=returnChartData&currencyPair=BTC_DEST&start=%ld&end=9999999999&period=86400",(long)(time(NULL)-3600*24));
     sprintf(url2,"https://poloniex.com/public?command=returnChartData&currencyPair=BTC_BTCD&start=%ld&end=9999999999&period=86400",(long)(time(NULL)-3600*24));
     quandl = 0;//url_json("https://www.quandl.com/api/v1/datasets/BAVERAGE/USD.json?rows=1");
     if ( 0 && (str= jstr(quandl,"updated_at")) != 0 && (datenum= conv_date(&seconds,str)) > 0 && (array= jarray(&n,quandl,"data")) != 0 )
@@ -1462,17 +1462,17 @@ void PAX_update(struct PAX_data *dp,double *btcusdp,double *kmdbtcp)
     if ( 1 )
     {
         double USD_average,avebid,aveask,bidvol,askvol,highbid,lowask,CMC_average,changes[3]; //struct exchange_quote sortbuf[512]; struct supernet_info *myinfo = SuperNET_MYINFO(0); cJSON *argjson = cJSON_Parse("{}");
-        //aveask = instantdex_aveprice(myinfo,sortbuf,(int32_t)(sizeof(sortbuf)/sizeof(*sortbuf)),&askvol,"KMD","BTC",1,argjson);
-        //avebid = instantdex_aveprice(myinfo,sortbuf,(int32_t)(sizeof(sortbuf)/sizeof(*sortbuf)),&bidvol,"KMD","BTC",-1,argjson);
+        //aveask = instantdex_aveprice(myinfo,sortbuf,(int32_t)(sizeof(sortbuf)/sizeof(*sortbuf)),&askvol,"DEST","BTC",1,argjson);
+        //avebid = instantdex_aveprice(myinfo,sortbuf,(int32_t)(sizeof(sortbuf)/sizeof(*sortbuf)),&bidvol,"DEST","BTC",-1,argjson);
         if ( 0 && avebid > SMALLVAL && aveask > SMALLVAL )
         {
             price = (avebid*bidvol + aveask*askvol) / (bidvol + askvol);
             *kmdbtcp = price;
-            printf("set KMD price %f\n",price);
-            dp->KMDBTC = price;
+            printf("set DEST price %f\n",price);
+            dp->DESTBTC = price;
         }
-        else if ( (dp->KMDBTC= get_theoretical(&avebid,&aveask,&highbid,&lowask,&CMC_average,changes,"komodo","KMD","BTC",&USD_average)) > SMALLVAL )
-            *kmdbtcp = dp->KMDBTC;
+        else if ( (dp->DESTBTC= get_theoretical(&avebid,&aveask,&highbid,&lowask,&CMC_average,changes,"komodo","DEST","BTC",&USD_average)) > SMALLVAL )
+            *kmdbtcp = dp->DESTBTC;
         else
         {
             for (iter=1; iter<2; iter++)
@@ -1492,7 +1492,7 @@ void PAX_update(struct PAX_data *dp,double *btcusdp,double *kmdbtcp)
                         if ( price != 0 )
                         {
                             if ( iter == 0 )
-                                dp->KMDBTC = *kmdbtcp = kmddaily;
+                                dp->DESTBTC = *kmdbtcp = kmddaily;
                             else dp->BTCDBTC = price;
                         }
                     }
@@ -1503,10 +1503,10 @@ void PAX_update(struct PAX_data *dp,double *btcusdp,double *kmdbtcp)
             }
         }
     }
-    if ( (*kmdbtcp= dp->KMDBTC) == 0. )
+    if ( (*kmdbtcp= dp->DESTBTC) == 0. )
         *kmdbtcp = dp->BTCDBTC / 50.22;
     if ( (rand() % 100) == 0 )
-        printf("KMD/BTC %.8f\n",*kmdbtcp);
+        printf("DEST/BTC %.8f\n",*kmdbtcp);
     if ( btctrades != 0 && (array= jarray(&n,btctrades,0)) != 0 )
     {
         //printf("GOT.(%s)\n",cJSON_Print(array));
@@ -1588,7 +1588,7 @@ void _crypto_update(double cryptovols[2][9][2],struct PAX_data *dp,int32_t selec
     char base[16],rel[16],url[512],name[16],*str; cJSON *jsonA,*jsonB;
     cnyusd = dp->CNYUSD;
     btcusd = dp->BTCUSD;
-    if ( (kmdbtc= dp->KMDBTC) == 0. )
+    if ( (kmdbtc= dp->DESTBTC) == 0. )
         ;//kmdbtc = dp->BTCDBTC / 50.22;
     printf("DEPRECATED: update with btcusd %f kmd %f cnyusd %f cnybtc %f\n",btcusd,kmdbtc,cnyusd,cnyusd/btcusd);
     return;
@@ -1662,8 +1662,8 @@ void PAX_RTupdate(double cryptovols[2][9][2],double RTmetals[4],double *RTprices
     if ( prices[0][0] > SMALLVAL )
         dxblend(&kmdbtc,prices[0][0],.9);
     dxblend(&dp->kmdbtc,kmdbtc,.995);
-    if ( dp->KMDBTC < SMALLVAL )
-        dp->KMDBTC = dp->kmdbtc;
+    if ( dp->DESTBTC < SMALLVAL )
+        dp->DESTBTC = dp->kmdbtc;
     if ( (cnyusd= dp->CNYUSD) > SMALLVAL )
     {
         if ( prices[0][1] > SMALLVAL )
@@ -1691,7 +1691,7 @@ void PAX_RTupdate(double cryptovols[2][9][2],double RTmetals[4],double *RTprices
         }
     }
     btcusd = dp->BTCUSD;
-    kmdbtc = dp->KMDBTC;
+    kmdbtc = dp->DESTBTC;
     if ( Debuglevel > 2 )
         printf("    update with btcusd %f kmd %f\n",btcusd,kmdbtc);
     if ( btcusd < SMALLVAL || kmdbtc < SMALLVAL )
@@ -1699,7 +1699,7 @@ void PAX_RTupdate(double cryptovols[2][9][2],double RTmetals[4],double *RTprices
         PAX_update(dp,&btcusd,&kmdbtc);
         if ( Debuglevel > 2 )
             printf("     price777_update with btcusd %f kmd %f\n",btcusd,kmdbtc);
-    } else dp->BTCUSD = btcusd, dp->KMDBTC = kmdbtc;
+    } else dp->BTCUSD = btcusd, dp->DESTBTC = kmdbtc;
     for (c=0; c<sizeof(CONTRACTS)/sizeof(*CONTRACTS); c++)
     {
         for (iter=0; iter<3; iter++)
@@ -1945,7 +1945,7 @@ int32_t PAX_idle(struct supernet_info *myinfo)//struct PAX_data *argdp,int32_t i
             {
                 for (i=0; i<6; i++)
                     printf("%u ",pvals[i]);
-                printf("KMD %.8f BTC %f CNY %f (%f) btcusd pval.%u\n",dp->kmdbtc,dp->btcusd,dp->CNYUSD,1./dp->CNYUSD,pvals[4]);
+                printf("DEST %.8f BTC %f CNY %f (%f) btcusd pval.%u\n",dp->kmdbtc,dp->btcusd,dp->CNYUSD,1./dp->CNYUSD,pvals[4]);
             }
         }
     }
