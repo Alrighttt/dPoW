@@ -26,7 +26,4 @@ curl --url "http://127.0.0.1:7779" --data "{\"conf\":\"SRC.conf\",\"path\":\"${H
 
 sleep 30
 
-# dpow for 3rd party coins.
-pubkey=0327256db6bba1dc118fb82f15e45f58a9b909dfda572e73e743a8aba652a5411d # pubkey0
-
 curl --url "http://127.0.0.1:7779" --data "{\"agent\":\"iguana\",\"method\":\"dpow\",\"symbol\":\"SRC\",\"freq\":5,\"pubkey\":\"$pubkey\"}"
